@@ -1,0 +1,20 @@
+.console-wrapper {
+  display: grid;
+  height: auto;
+  grid-template-columns: 100%;
+  grid-template-rows: 8% 92%;
+  grid-template-areas:
+    "header"
+    "game";
+  padding: 15px;
+}
+
+.console-header {
+  grid-area: header;
+}
+
+.console-game {
+  grid-area: game;
+  /* padding-left:180px;
+    padding-right: 180px; */
+}

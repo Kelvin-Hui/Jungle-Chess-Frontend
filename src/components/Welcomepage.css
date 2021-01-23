@@ -1,0 +1,31 @@
+.grid-container{
+    display:grid;
+    padding: 2.5px;
+    text-align: center;
+    align-items: center;
+
+    grid-template-columns: 20% 60% 20%;
+    grid-template-rows: 10% 85% 5%; 
+    grid-template-areas: "header header header header header"
+                         "login login login login login"
+                         "footer footer footer footer footer";
+}
+
+.grid-header{
+    grid-area: header;
+    font-size: 50px;
+    border-radius: 20px;
+    border: 3px solid black;
+}
+.grid-login{
+    grid-area: login;
+}
+.welcomepage_form{
+    align-items: center;
+}
+
+.grid-footer{
+    border-radius: 20px;
+    grid-area: footer;
+    border: 3px solid black;
+}
