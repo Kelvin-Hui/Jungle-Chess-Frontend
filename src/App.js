@@ -1,29 +1,37 @@
-import React,{useState}from "react";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import './App.css';
-
-import Homepage from "./components/Homepage";
-import Welcomepage from "./components/Welcomepage";
-
+import React from "react";
+import "./styles/App.scss";
+import HomePage from "./components/HomePage";
+import WelcomePage from "./components/WelcomePage";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 function App() {
-  const d = new Date()
-  const [userName, setUserName] = useState("Player" + d.getSeconds());
-  const [roomId, setRoomId] = useState("");
-  const [isHost, setHost] = useState(0);
+    const [userName, setUserName] = React.useState(
+        "Player" + new Date().getSeconds()
+    );
+    const [roomId, setRoomId] = React.useState("");
+    const [isHost, setHost] = React.useState(0);
 
-  return (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          <Welcomepage userName = {userName} setUserName = {setUserName} roomId={roomId} setRoomId={setRoomId} setHost={setHost} />
-        </Route>
-        <Route exact path="/home">
-          <Homepage roomId = {roomId} setRoomId={setRoomId} userName = {userName} isHost = {isHost}/>
-        </Route>
-      </Switch>
-    </Router>
-  );
+    return (
+        <Router>
+            <Switch>
+                <Route exact path="/">
+                    <WelcomePage
+                        userName={userName}
+                        setUserName={setUserName}
+                        setRoomId={setRoomId}
+                        setHost={setHost}
+                    />
+                </Route>
+                <Route exact path="/home">
+                    <HomePage
+                        roomId={roomId}
+                        userName={userName}
+                        isHost={isHost}
+                    />
+                </Route>
+            </Switch>
+        </Router>
+    );
 }
 
 export default App;

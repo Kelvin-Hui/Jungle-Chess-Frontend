@@ -1,0 +1,341 @@
+* {
+    box-sizing: border-box;
+    overflow-y: hidden;
+}
+
+%den_river_trap {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+//General-UI
+.bg {
+    opacity: 0.5;
+    z-index: -1;
+    position: absolute;
+    top: 0px;
+    img {
+        object-fit: cover;
+        height: 100vh;
+        width: 100%;
+    }
+}
+.input_ui {
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    border-bottom: 1px solid black;
+    outline: none;
+    font-size: 2vh;
+    text-align: center;
+}
+.input_ui:focus {
+    border-bottom: 2px solid black;
+}
+.button_ui {
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 5%;
+    font-size: 2vh;
+    outline: none;
+}
+.button_ui:hover {
+    background-color: white;
+}
+.button_ui:active {
+    transform: translateY(2px);
+}
+.modal,
+.modal_rule {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    .modal_content {
+        margin: auto;
+        border-radius: 15px;
+        background-color: white;
+        padding: 10px;
+        text-align: center;
+    }
+}
+table,
+th,
+td {
+    border: 1px solid black;
+}
+
+.loader {
+    width: 35vh;
+    height: 35vh;
+    border: 16px solid lightgrey;
+    border-top: 16px solid skyblue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+#snack {
+    visibility: hidden;
+    position: fixed;
+    border-radius: 5px;
+    background-color: slategray;
+    color: #fff;
+    inset: 7.5% 25% 0 25%;
+    height: 4vh;
+    font-size: 2vh;
+}
+#snack.show_snack {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+@keyframes fadein {
+    from {
+        top: 0;
+        opacity: 0;
+    }
+    to {
+        top: 7.5%;
+        opacity: 1;
+    }
+}
+@keyframes fadeout {
+    from {
+        top: 7.5%;
+        opacity: 1;
+    }
+    to {
+        top: 0;
+        opacity: 0;
+    }
+}
+
+//WelcomePage
+.wrapper {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: hidden;
+    .title {
+        text-align: center;
+        font-size: 5vh;
+    }
+    .props_wrapper {
+        flex-grow: 2;
+        align-items: center;
+        display: flex;
+        .props {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 2vh;
+        }
+    }
+}
+//HomePage
+.grid {
+    overflow-y: hidden;
+    display: grid;
+    text-align: center;
+    height: 100vh;
+    grid-template-columns: 20% 0% 60% 0% 20%;
+    grid-template-rows: 10% 90%;
+    grid-template-areas:
+        "header header header header header"
+        "log board board board chat";
+    .header {
+        grid-area: header;
+        font-size: 5vh;
+    }
+}
+//Log
+.log {
+    grid-area: log;
+    margin: 2px;
+    display: flex;
+    flex-direction: column;
+    .log_wrapper {
+        border: 1px solid black;
+        border-radius: 15px;
+        height: 80%;
+        overflow: auto;
+        .log_item {
+            font-size: 2em;
+            border: 1px solid black;
+            border-radius: 15px;
+            margin: 1px;
+            background-color: white;
+        }
+    }
+}
+//Board
+.board {
+    grid-area: board;
+    margin: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    button {
+        margin: 1%;
+        padding: 1%;
+        border-radius: 15px;
+        outline: none;
+    }
+    button:hover {
+        background-color: white;
+    }
+    button:active {
+        transform: translateY(2px);
+    }
+    .score_board {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        font-size: large;
+        .score {
+            margin: 10px;
+        }
+    }
+    .board_wrapper {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-template-rows: repeat(9, 1fr);
+        grid-template-areas:
+            "A1 A2 A3 A4 A5 A6 A7"
+            "B1 B2 B3 B4 B5 B6 B7"
+            "C1 C2 C3 C4 C5 C6 C7"
+            "D1 D2 D3 D4 D5 D6 D7"
+            "E1 E2 E3 E4 E5 E6 E7"
+            "F1 F2 F3 F4 F5 F6 F7"
+            "G1 G2 G3 G4 G5 G6 G7"
+            "H1 H2 H3 H4 H5 H6 H7"
+            "I1 I2 I3 I4 I5 I6 I7";
+
+        border: 5px solid red;
+        padding: 1px;
+        height: 80%;
+        width: 65%;
+        margin: auto;
+        background-color: white;
+    }
+}
+//Piece
+.animalpiece,
+.piece {
+    border: 3px solid red;
+    margin: auto;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    cursor: grab;
+    user-select: none;
+    .notation {
+        margin: auto;
+        opacity: 0.5;
+    }
+}
+.animal_img {
+    margin: auto;
+    height: 95%;
+    width: 95%;
+    object-fit: contain;
+}
+#D2,
+#D3,
+#D5,
+#D6,
+#E2,
+#E3,
+#E5,
+#E6,
+#F2,
+#F3,
+#F5,
+#F6 {
+    @extend %den_river_trap;
+    background-image: url("../assets/river.png");
+}
+
+#A4,
+#I4 {
+    @extend %den_river_trap;
+    background-image: url("../assets/den.png");
+}
+
+#A3,
+#A5,
+#B4,
+#I3,
+#I5,
+#H4 {
+    @extend %den_river_trap;
+    background-image: url("../assets/trap.png");
+}
+
+//Chat
+.chat {
+    grid-area: chat;
+    margin: 2px;
+    overflow-x: hidden;
+    .chat_wrapper {
+        border: 1px solid black;
+        border-radius: 15px;
+        height: 80%;
+        overflow: hidden auto;
+        .greeting {
+            font-size: 1.5em;
+        }
+        .own_msg {
+            float: right;
+            clear: both;
+            background-color: white;
+            border-radius: 5px;
+            font-size: 1.5em;
+            margin: 1.5px;
+        }
+        .oppo_msg {
+            float: left;
+            clear: both;
+            background-color: skyblue;
+            border-radius: 5px;
+            font-size: 1.5em;
+            margin: 1.5px;
+        }
+    }
+    input {
+        font-size: 1.5em;
+        outline: none;
+    }
+}
+//Footer
+.footer_nav {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    background-color: inherit;
+    list-style-type: none;
+    padding: 10px;
+    .footer_nav_item {
+        font-size: large;
+        display: block;
+        color: black;
+        text-align: center;
+    }
+    .footer_nav_item:hover {
+        color: white;
+    }
+}

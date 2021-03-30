@@ -1,163 +1,179 @@
-import React, { useEffect, useState } from "react";
-import "./Board.css";
+import React from "react";
+import { Link } from "react-router-dom";
+import socket from "../connections/socket";
 import Piece from "./Piece";
+import Rule from "./Rule";
 
-import socket from "../connection/Socket";
+export default function Board({ userName, roomId, oppoent, isHost, start }) {
+    const [array, setArray] = React.useState([]);
+    const [tempMove, setTempMove] = React.useState([]);
+    const [toggle, setToggle] = React.useState(false);
+    const [score, setScore] = React.useState([0, 0]);
+    const [turn, setTurn] = React.useState(isHost === 1 ? true : false);
+    const [loading, setLoading] = React.useState(true);
 
-import MuiAlert from "@material-ui/lab/Alert";
-import Snackbar from "@material-ui/core/Snackbar";
-import { CircularProgress } from "@material-ui/core";
-
-function Board({ roomId, gamestarts, oppoent, isHost, toggle, score }) {
-  const [array, setArray] = useState([]);
-  const [templog, setTemplog] = useState([]);
-  const [turn, setTurn] = useState(isHost === 1 ? true : false);
-  const [loading, setLoading] = useState(true);
-
-  const [infoSnackOpen, setInfoSnackOpen] = useState(false);
-  const [errorSnackOpen, setErrorSnackOpen] = useState(false);
-  const [warningSnackOpen, setWarningSnackOpen] = useState(false);
-  const [infoMsg, setInfoMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  useEffect(() => {
-    socket.emit("getboard", { roomId: String(roomId) });
-    socket.off("get_board").on("get_board", (data) => {
-      setArray(data["array"]);
-      setLoading(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (templog.length === 2) {
-      if (templog[0] === templog[1] || templog[1] === "") {
-        setWarningSnackOpen(true);
-        setTemplog([]);
-      } else {
-        socket.emit("move", {
-          oppoent: oppoent,
-          turn: turn,
-          move: templog,
-          team: isHost,
-          score: score,
+    React.useEffect(() => {
+        socket.emit("getboard", { roomId: String(roomId) });
+        socket.off("get_board").on("get_board", (data) => {
+            setArray(data["array"]);
+            setLoading(false);
         });
-        setTemplog([]);
-      }
+        // eslint-disable-next-line
+    }, []);
+
+    React.useEffect(() => {
+        if (tempMove.length === 2) {
+            if (tempMove[0] === tempMove[1] || tempMove[1] === "") {
+                openSnack(
+                    "#FF9800",
+                    "Invalid Input! Please Enter Valid Input!"
+                );
+                setTempMove([]);
+            } else {
+                socket.emit("move", {
+                    oppoent: oppoent,
+                    turn: turn,
+                    move: tempMove,
+                    team: isHost,
+                    score: score,
+                });
+                setTempMove([]);
+            }
+        }
+        // eslint-disable-next-line
+    }, [tempMove]);
+
+    socket.off("update_array").on("update_array", (data) => {
+        setArray(data["array"]);
+    });
+
+    socket.off("update_score").on("update_score", (data) => {
+        if (isHost === 1) {
+            setScore(data.reverse());
+        } else {
+            setScore(data);
+        }
+    });
+    socket.off("update_turn").on("update_turn", (data) => {
+        setTurn(data);
+    });
+    socket.off("gameEnd").on("gameEnd", (data) => {
+        setTurn(!data);
+    });
+    socket.off("rematch_request").on("rematch_request", (data) => {
+        let modal = document.getElementsByClassName("modal")[0];
+        modal.style.display = "flex";
+    });
+    socket.off("infoServerMsg").on("infoServerMsg", (data) => {
+        openSnack("#2196F3", data);
+    });
+
+    socket.off("errorServerMsg").on("errorServerMsg", (data) => {
+        openSnack("#F44336", data);
+    });
+
+    function leaveRoom() {
+        socket.emit("leave", { userName: userName });
     }
-  }, [templog]);
+    function askRematch() {
+        socket.emit("rematch", { oppoent: oppoent });
+    }
+    function handleRematch(e, response) {
+        e.preventDefault();
+        socket.emit("response", { res: response, oppoent: oppoent });
+        let modal = document.getElementsByClassName("modal")[0];
+        modal.style.display = "none";
+    }
+    function openRule() {
+        let modal = document.getElementsByClassName("modal_rule")[0];
+        modal.style.display = "flex";
+    }
+    function openSnack(bg, word) {
+        var snack = document.getElementById("snack");
+        snack.className = "show_snack";
+        snack.style.backgroundColor = bg;
+        snack.innerHTML = word;
+        setTimeout(function () {
+            snack.className = snack.className.replace("show_snack", "");
+        }, 3000);
+    }
 
-  socket.off("update_array").on("update_array", (data) => {
-    setArray(data["array"]);
-  });
+    return (
+        <div className="board">
+            <Rule />
+            <div id="snack" />
+            <div className="modal">
+                <div className="modal_content">
+                    <h1>Rematch Request</h1>
+                    <h3>{oppoent + " Want A Rematch! Agree?"}</h3>
+                    <button
+                        className="button_ui"
+                        onClick={(e) => handleRematch(e, false)}
+                    >
+                        Reject
+                    </button>
+                    <button
+                        className="button_ui"
+                        onClick={(e) => handleRematch(e, true)}
+                    >
+                        Accept
+                    </button>
+                </div>
+            </div>
 
-  socket.off("update_turn").on("update_turn", (data) => {
-    setTurn(data);
-  });
+            <b className="room_id">Room Number : {roomId}</b>
+            <div>
+                <button onClick={() => setToggle(!toggle)}>
+                    Toggle Notations
+                </button>
+                <button onClick={() => askRematch()}>Ask For Rematch</button>
+                <Link to="/">
+                    <button onClick={() => leaveRoom()}>
+                        Leave Current Room
+                    </button>
+                </Link>
 
-  socket.off("infoServerMsg").on("infoServerMsg", (data) => {
-    setInfoSnackOpen(true);
-    setInfoMsg(data);
-  });
-
-  socket.off("errorServerMsg").on("errorServerMsg", (data) => {
-    setErrorSnackOpen(true);
-    setErrorMsg(data);
-  });
-
-  socket.off("gameEnd").on("gameEnd", (data) => {
-    setTurn(!data);
-  });
-
-  const handleInfoClose = () => {
-    setInfoSnackOpen(false);
-  };
-  const handleErrorClose = () => {
-    setErrorSnackOpen(false);
-  };
-  const handleWarningClose = () => {
-    setWarningSnackOpen(false);
-  };
-
-  return (
-    <div className="array_container">
-      <Snackbar
-        open={errorSnackOpen}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={3000}
-        onClose={handleErrorClose}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          severity="error"
-          onClose={handleErrorClose}
-        >
-          {errorMsg}{" "}
-        </MuiAlert>
-      </Snackbar>
-
-      <Snackbar
-        open={infoSnackOpen}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          severity="info"
-          onClose={handleInfoClose}
-        >
-          {" "}
-          {infoMsg}{" "}
-        </MuiAlert>
-      </Snackbar>
-
-      <Snackbar
-        open={warningSnackOpen}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={1000}
-        onClose={handleWarningClose}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          severity="warning"
-          onClose={handleWarningClose}
-        >
-          Invalid Input! Please Enter Valid Input!
-        </MuiAlert>
-      </Snackbar>
-
-      {loading ? (
-        <React.Fragment>
-          <span>Waiting</span>
-          <span>For</span>
-          <span>Server</span>
-          <div stlye={{ margin: "auto" }}>
-            <CircularProgress />
-          </div>
-          <span>To</span>
-          <span>Start</span>
-          <span>!</span>
-        </React.Fragment>
-      ) : (
-        array.map((row, ridx) => {
-          return row.map((value, cidx) => {
-            return (
-              <Piece
-                ridx={ridx}
-                cidx={cidx}
-                value={value}
-                setTemplog={setTemplog}
-                gamestarts={gamestarts}
-                turn={turn}
-                toggle={toggle}
-              />
-            );
-          });
-        })
-      )}
-    </div>
-  );
+                <button onClick={() => openRule()}>Rules</button>
+            </div>
+            <div className="score_board">
+                <b className="score">{score[0]}</b>
+                <u>{userName}</u>
+                <b className="score">V.S.</b>
+                <u>{oppoent}</u>
+                <b className="score">{score[1]}</b>
+            </div>
+            {oppoent ? (
+                <b style={{ color: isHost ? "red" : "deepskyblue" }}>
+                    Current Turn : {turn ? "Your Turn" : "Oppoent's Turn"}
+                </b>
+            ) : (
+                <b>Current Status : Waiting For Oppoent</b>
+            )}
+            {loading ? (
+                <div>
+                    <h3>Waiting Server...</h3>
+                    <div className="loader" />
+                </div>
+            ) : (
+                <div className="board_wrapper">
+                    {array.map((row, ridx) => {
+                        return row.map((value, cidx) => {
+                            return (
+                                <Piece
+                                    ridx={ridx}
+                                    cidx={cidx}
+                                    value={value}
+                                    key={ridx + cidx}
+                                    toggle={toggle}
+                                    setTempMove={setTempMove}
+                                    turn={turn}
+                                    start={start}
+                                />
+                            );
+                        });
+                    })}
+                </div>
+            )}
+        </div>
+    );
 }
-
-export default Board;
